@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karmienie Delikwenta</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .kontener {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .dotknij {
+            color: white;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .karta-zdjecia {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .karta-zdjecia:not(.trwa-karmienie):hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .karta-zdjecia img {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            border-radius: 12px;
+            display: block;
+            margin: 0 auto;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="kontener">
+        <p class="dotknij" id="napis-instrukcji">Dotknij delikwenta aby go nakarmic</p>
+
+        <div class="karta-zdjecia" id="kafelek-karmienia">
+            <img src="zdj/5.png" alt="Delikwent" id="zdjecie-delikwenta">
+        </div>
+    </div>
+
+    <script>
+        const kafelek = document.getElementById('kafelek-karmienia');
+        const zdjecie = document.getElementById('zdjecie-delikwenta');
+        const napis = document.getElementById('napis-instrukcji');
+
+        // Zdjęcia
+        const zdjecieStartowe = 'zdj/5.png';
+        const zdjecieKarmienia = 'zdj/6.png';
+
+        // Dźwięki w formacie .mp3 z folderu dzwieki/
+        const dzwiekJesc = new Audio('dzwieki/jescjesc.mp3');
+        const dzwiekOmom = new Audio('dzwieki/omom.mp3');
+
+        let czyTrwaAkcja = false;
+
+        kafelek.addEventListener('click', function() {
+            if (czyTrwaAkcja) return;
+
+            czyTrwaAkcja = true;
+            kafelek.classList.add('trwa-karmienie');
+
+            // ETAP 1: Gra pierwszy dźwięk, ale zdjęcie to nadal zdj/5.png
+            zdjecie.src = zdjecieStartowe;
+            napis.textContent = 'Prosi o jedzenie...';
+
+            dzwiekJesc.currentTime = 0;
+            dzwiekJesc.play().catch(err => console.error("Błąd odtwarzania jescjesc.mp3:", err));
+        });
+
+        // Gdy skończy się pierwszy dźwięk (jescjesc.mp3) -> ETAP 2
+        dzwiekJesc.addEventListener('ended', function() {
+            // DOPIERO TERAZ zmiana zdjęcia na 6.png
+            zdjecie.src = zdjecieKarmienia;
+            napis.textContent = 'Mniam mniam...';
+
+            dzwiekOmom.currentTime = 0;
+            dzwiekOmom.play().catch(err => console.error("Błąd odtwarzania omom.mp3:", err));
+        });
+
+        // Gdy skończy się drugi dźwięk (omom.mp3) -> RESET
+        dzwiekOmom.addEventListener('ended', function() {
+            zdjecie.src = zdjecieStartowe;
+            napis.textContent = 'Dotknij delikwenta aby go nakarmic';
+            
+            czyTrwaAkcja = false;
+            kafelek.classList.remove('trwa-karmienie');
+        });
+    </script>
+
+</body>
+</html>
